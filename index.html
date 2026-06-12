@@ -1,10 +1,12 @@
 
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }
 body { font-family: var(--font-mono, monospace); }
 #terminal {
   background: #f4f5f7;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   padding: 16px;
   border-radius: 0;
   color: #333333;
@@ -88,7 +90,8 @@ body { font-family: var(--font-mono, monospace); }
   border-radius: 8px;
   padding: 16px;
   margin-bottom: 10px;
-  flex-grow: 1;
+  flex: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
@@ -103,7 +106,7 @@ body { font-family: var(--font-mono, monospace); }
 #chart-stats { display: flex; gap: 16px; }
 .cstat { font-size: 11px; color: #666; font-weight: 500; }
 .cstat span { color: #333; font-weight: 600; }
-#chart-canvas-wrap { position: relative; width: 100%; flex-grow: 1; min-height: 250px; }
+#chart-canvas-wrap { position: relative; width: 100%; flex: 1; min-height: 0; }
 #myChart { width: 100% !important; }
 #tick-log {
   background: #ffffff;
@@ -232,7 +235,7 @@ let selectedKey = "EURUSD";
 let chart = null;
 
 function clockTick() {
-  const now = new Date();
+  var now = new Date();
   document.getElementById('clock').textContent =
     now.toUTCString().slice(17,25) + ' UTC';
 }
@@ -305,18 +308,18 @@ chart = new Chart(ctx, {
 });
 
 function updateChart() {
-  const s = state[selectedKey];
-  const label = Object.keys(displayMap).find(k => displayMap[k] === selectedKey) || selectedKey;
+  var s = state[selectedKey];
+  var label = Object.keys(displayMap).find(k => displayMap[k] === selectedKey) || selectedKey;
   document.getElementById('chart-title').textContent = label + ' — TICK CHART';
   chart.data.labels = s.labels;
   chart.data.datasets[0].data = s.ticks;
   if (s.ticks.length > 0) {
-    const hi = Math.max(...s.ticks);
-    const lo = Math.min(...s.ticks);
+    var hi = Math.max(...s.ticks);
+    var lo = Math.min(...s.ticks);
     document.getElementById('stat-high').textContent = hi.toFixed(5);
     document.getElementById('stat-low').textContent = lo.toFixed(5);
     document.getElementById('stat-ticks').textContent = s.ticks.length;
-    const yPad = (hi - lo) * 0.3 || 0.0005;
+    var yPad = (hi - lo) * 0.3 || 0.0005;
     chart.options.scales.y.min = lo - yPad;
     chart.options.scales.y.max = hi + yPad;
   }
@@ -324,7 +327,7 @@ function updateChart() {
 }
 
 function flashCard(key, dir) {
-  const el = document.getElementById('flash-' + key);
+  var el = document.getElementById('flash-' + key);
   if (!el) return;
   el.className = 'tick-flash ' + (dir === 'up' ? 'up-flash' : 'down-flash');
   el.style.opacity = '1';
@@ -332,10 +335,10 @@ function flashCard(key, dir) {
 }
 
 function addLog(key, price, dir, time) {
-  const log = document.getElementById('tick-log');
-  const d = document.createElement('div');
+  var log = document.getElementById('tick-log');
+  var d = document.createElement('div');
   d.className = 'log-line ' + dir;
-  const arrow = dir === 'up' ? '▲' : '▼';
+  var arrow = dir === 'up' ? '▲' : '▼';
   d.textContent = time + '  ' + key + '  ' + arrow + '  ' + price.toFixed(5);
   log.insertBefore(d, log.firstChild);
   while (log.children.length > 30) log.removeChild(log.lastChild);
@@ -375,46 +378,46 @@ function connect() {
   };
 
   ws.onmessage = (evt) => {
-    try {
-      const msg = JSON.parse(evt.data);
-      if (msg.msg_type === 'tick' && msg.tick) {
-        const sym = msg.tick.symbol;
-        const key = keyMap[sym];
-        if (!key) return;
-        const price = msg.tick.quote;
-        const time = new Date(msg.tick.epoch * 1000);
-        const timeStr = time.toUTCString().slice(17,25);
-        const s = state[key];
-        const prev = s.price;
-        const dir = prev === null ? 'up' : price >= prev ? 'up' : 'down';
-        s.price = price;
-        if (s.open === null) s.open = price;
-        s.ticks.push(price);
-        s.labels.push(timeStr);
-        if (s.ticks.length > MAX_TICKS) { s.ticks.shift(); s.labels.shift(); }
-        const priceEl = document.getElementById('price-' + key);
-        const changeEl = document.getElementById('change-' + key);
-        const card = priceEl ? priceEl.closest('.pair-card') : null;
-        if (priceEl) priceEl.textContent = price.toFixed(5);
-        if (card) {
-          card.classList.remove('up','down');
-          card.classList.add(dir);
+      try {
+        var msg = JSON.parse(evt.data);
+        if (msg.msg_type === 'tick' && msg.tick) {
+          var sym = msg.tick.symbol;
+          var key = keyMap[sym];
+          if (!key) return;
+          var price = msg.tick.quote;
+          var time = new Date(msg.tick.epoch * 1000);
+          var timeStr = time.toUTCString().slice(17,25);
+          var s = state[key];
+          var prev = s.price;
+          var dir = prev === null ? 'up' : price >= prev ? 'up' : 'down';
+          s.price = price;
+          if (s.open === null) s.open = price;
+          s.ticks.push(price);
+          s.labels.push(timeStr);
+          if (s.ticks.length > MAX_TICKS) { s.ticks.shift(); s.labels.shift(); }
+          var priceEl = document.getElementById('price-' + key);
+          var changeEl = document.getElementById('change-' + key);
+          var card = priceEl ? priceEl.closest('.pair-card') : null;
+          if (priceEl) priceEl.textContent = price.toFixed(5);
+          if (card) {
+            card.classList.remove('up','down');
+            card.classList.add(dir);
+          }
+          if (changeEl && s.open !== null) {
+            var diff = price - s.open;
+            var pct = ((diff / s.open) * 100).toFixed(3);
+            var sign = diff >= 0 ? '+' : '';
+            changeEl.textContent = sign + diff.toFixed(5) + '  (' + sign + pct + '%)';
+            changeEl.className = 'pair-change ' + (diff >= 0 ? 'up' : 'down');
+          }
+          flashCard(key, dir);
+          if (key === selectedKey) {
+            updateChart();
+            addLog(key, price, dir, timeStr);
+          }
         }
-        if (changeEl && s.open !== null) {
-          const diff = price - s.open;
-          const pct = ((diff / s.open) * 100).toFixed(3);
-          const sign = diff >= 0 ? '+' : '';
-          changeEl.textContent = sign + diff.toFixed(5) + '  (' + sign + pct + '%)';
-          changeEl.className = 'pair-change ' + (diff >= 0 ? 'up' : 'down');
-        }
-        flashCard(key, dir);
-        if (key === selectedKey) {
-          updateChart();
-          addLog(key, price, dir, timeStr);
-        }
-      }
-    } catch(e) {}
-  };
+      } catch(e) {}
+    };
 
   ws.onerror = () => {
     document.getElementById('status-text').textContent = 'ERROR';
