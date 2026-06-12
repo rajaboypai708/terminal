@@ -4,10 +4,12 @@
 body { font-family: var(--font-mono, monospace); }
 #terminal {
   background: #f4f5f7;
-  min-height: 600px;
+  min-height: 100vh;
   padding: 16px;
-  border-radius: var(--border-radius-lg);
+  border-radius: 0;
   color: #333333;
+  display: flex;
+  flex-direction: column;
 }
 #header {
   display: flex;
@@ -27,9 +29,24 @@ body { font-family: var(--font-mono, monospace); }
 #status-dot.live { background: #0077ff; box-shadow: 0 0 6px #0077ff; }
 #status-text { font-size: 11px; color: #666; letter-spacing: 1px; }
 #clock { font-size: 11px; color: #666; letter-spacing: 1px; }
+#pair-select {
+  background: #ffffff;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-family: inherit;
+  font-size: 11px;
+  color: #333;
+  margin-left: 16px;
+  cursor: pointer;
+  outline: none;
+}
+#pair-select:focus { border-color: #0077ff; }
 #pairs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  grid-auto-flow: column;
   gap: 10px;
   margin-bottom: 16px;
 }
@@ -69,20 +86,24 @@ body { font-family: var(--font-mono, monospace); }
   background: #ffffff;
   border: 0.5px solid #dcdcdc;
   border-radius: 8px;
-  padding: 12px;
+  padding: 16px;
   margin-bottom: 10px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.02);
 }
 #chart-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
-#chart-title { font-size: 11px; color: #0077ff; letter-spacing: 1.5px; }
+#chart-title { font-size: 12px; font-weight: 600; color: #0077ff; letter-spacing: 1.5px; }
 #chart-stats { display: flex; gap: 16px; }
-.cstat { font-size: 10px; color: #666; }
-.cstat span { color: #333; }
-#chart-canvas-wrap { position: relative; width: 100%; height: 180px; }
+.cstat { font-size: 11px; color: #666; font-weight: 500; }
+.cstat span { color: #333; font-weight: 600; }
+#chart-canvas-wrap { position: relative; width: 100%; flex-grow: 1; min-height: 250px; }
 #myChart { width: 100% !important; }
 #tick-log {
   background: #ffffff;
@@ -109,8 +130,16 @@ body { font-family: var(--font-mono, monospace); }
       <div id="status-dot"></div>
       <div id="logo">TERMINAL v1</div>
       <div id="status-text">CONNECTING</div>
-    </div>
-    <div id="clock">--:--:--</div>
+            <select id="pair-select">
+              <option value="EUR/USD">EUR / USD</option>
+              <option value="USD/JPY">USD / JPY</option>
+              <option value="XAU/USD">XAU / USD</option>
+              <option value="XAG/USD">XAG / USD</option>
+              <option value="BTC/USD">BTC / USD</option>
+              <option value="ETH/USD">ETH / USD</option>
+            </select>
+          </div>
+          <div id="clock">--:--:--</div>
   </div>
 
   <div id="pairs-grid">
@@ -211,6 +240,10 @@ setInterval(clockTick, 1000);
 clockTick();
 
 const ctx = document.getElementById('myChart').getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, 600);
+gradient.addColorStop(0, 'rgba(0,119,255,0.15)');
+gradient.addColorStop(1, 'rgba(0,119,255,0.0)');
+
 chart = new Chart(ctx, {
   type: 'line',
   data: {
@@ -219,20 +252,25 @@ chart = new Chart(ctx, {
       label: 'price',
       data: [],
       borderColor: '#0077ff',
-      borderWidth: 1.5,
+      borderWidth: 2,
       pointRadius: 0,
-      tension: 0.1,
-      fill: {
-        target: 'origin',
-        above: 'rgba(0,119,255,0.04)',
-        below: 'rgba(221,51,51,0.04)'
-      }
+      pointHoverRadius: 5,
+      pointBackgroundColor: '#ffffff',
+      pointBorderColor: '#0077ff',
+      pointBorderWidth: 2,
+      tension: 0,
+      fill: true,
+      backgroundColor: gradient
     }]
   },
   options: {
     responsive: true,
     maintainAspectRatio: false,
     animation: false,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
     plugins: { legend: { display: false }, tooltip: {
       callbacks: {
         label: ctx => ctx.parsed.y.toFixed(5)
@@ -242,20 +280,25 @@ chart = new Chart(ctx, {
       borderWidth: 1,
       titleColor: '#666',
       bodyColor: '#0077ff',
-      bodyFont: { family: 'monospace', size: 11 }
+      bodyFont: { family: 'monospace', size: 12, weight: 'bold' },
+      padding: 10,
+      displayColors: false,
+      caretPadding: 10
     }},
     scales: {
       x: {
         display: true,
-        ticks: { color: '#666', font: { family: 'monospace', size: 9 }, maxTicksLimit: 6, maxRotation: 0 },
-        grid: { color: '#e0e0e0' }
+        ticks: { color: '#888', font: { family: 'monospace', size: 10 }, maxTicksLimit: 8, maxRotation: 0 },
+        grid: { color: '#f0f0f0', drawTicks: false },
+        border: { display: false }
       },
       y: {
         display: true,
         position: 'right',
-        ticks: { color: '#666', font: { family: 'monospace', size: 9 }, maxTicksLimit: 5,
+        ticks: { color: '#888', font: { family: 'monospace', size: 10 }, maxTicksLimit: 8, padding: 10,
           callback: v => v.toFixed(5) },
-        grid: { color: '#e0e0e0' }
+        grid: { color: '#f0f0f0', drawTicks: false },
+        border: { display: false, dash: [4, 4] }
       }
     }
   }
@@ -298,12 +341,24 @@ function addLog(key, price, dir, time) {
   while (log.children.length > 30) log.removeChild(log.lastChild);
 }
 
+const pairSelect = document.getElementById('pair-select');
+
+pairSelect.addEventListener('change', (e) => {
+  selectedPair = e.target.value;
+  selectedKey = displayMap[selectedPair];
+  document.querySelectorAll('.pair-card').forEach(c => {
+    c.classList.toggle('selected', c.dataset.pair === selectedPair);
+  });
+  updateChart();
+});
+
 document.querySelectorAll('.pair-card').forEach(card => {
   card.addEventListener('click', () => {
     document.querySelectorAll('.pair-card').forEach(c => c.classList.remove('selected'));
     card.classList.add('selected');
     selectedPair = card.dataset.pair;
     selectedKey = displayMap[selectedPair];
+    pairSelect.value = selectedPair;
     updateChart();
   });
 });
