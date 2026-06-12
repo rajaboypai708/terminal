@@ -1,0 +1,377 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-mono, monospace); }
+#terminal {
+  background: #0a0a0f;
+  min-height: 600px;
+  padding: 16px;
+  border-radius: var(--border-radius-lg);
+  color: #e0e0e0;
+}
+#header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 0.5px solid #1e2a1e;
+}
+#header-left { display: flex; align-items: center; gap: 10px; }
+#logo { font-size: 13px; font-weight: 500; color: #00ff88; letter-spacing: 2px; }
+#status-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #ff4444;
+  box-shadow: 0 0 6px #ff4444;
+}
+#status-dot.live { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
+#status-text { font-size: 11px; color: #555; letter-spacing: 1px; }
+#clock { font-size: 11px; color: #444; letter-spacing: 1px; }
+#pairs-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 16px;
+}
+.pair-card {
+  background: #0f110f;
+  border: 0.5px solid #1a2a1a;
+  border-radius: 8px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+  position: relative;
+  overflow: hidden;
+}
+.pair-card:hover { border-color: #2a4a2a; }
+.pair-card.selected { border-color: #00ff88; }
+.pair-card.up .pair-price { color: #00ff88; }
+.pair-card.down .pair-price { color: #ff4444; }
+.pair-name { font-size: 10px; color: #555; letter-spacing: 1.5px; margin-bottom: 4px; }
+.pair-price { font-size: 18px; font-weight: 500; color: #888; font-variant-numeric: tabular-nums; transition: color 0.2s; }
+.pair-change {
+  font-size: 10px;
+  margin-top: 3px;
+  color: #444;
+  font-variant-numeric: tabular-nums;
+}
+.pair-change.up { color: #00aa55; }
+.pair-change.down { color: #aa2222; }
+.tick-flash {
+  position: absolute; inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  border-radius: 8px;
+}
+.tick-flash.up-flash { background: rgba(0,255,136,0.06); }
+.tick-flash.down-flash { background: rgba(255,68,68,0.06); }
+#chart-panel {
+  background: #0f110f;
+  border: 0.5px solid #1a2a1a;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 10px;
+}
+#chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+#chart-title { font-size: 11px; color: #00ff88; letter-spacing: 1.5px; }
+#chart-stats { display: flex; gap: 16px; }
+.cstat { font-size: 10px; color: #444; }
+.cstat span { color: #888; }
+#chart-canvas-wrap { position: relative; width: 100%; height: 180px; }
+#myChart { width: 100% !important; }
+#tick-log {
+  background: #0a0a0f;
+  border: 0.5px solid #1a1a1a;
+  border-radius: 8px;
+  padding: 8px 12px;
+  height: 80px;
+  overflow-y: auto;
+  font-size: 10px;
+  color: #333;
+  letter-spacing: 0.5px;
+}
+#tick-log .log-line { padding: 1px 0; border-bottom: 0.5px solid #111; }
+#tick-log .log-line.up { color: #1a5a35; }
+#tick-log .log-line.down { color: #5a1a1a; }
+#tick-log::-webkit-scrollbar { width: 3px; }
+#tick-log::-webkit-scrollbar-track { background: #0a0a0f; }
+#tick-log::-webkit-scrollbar-thumb { background: #1a2a1a; }
+</style>
+
+<div id="terminal">
+  <div id="header">
+    <div id="header-left">
+      <div id="status-dot"></div>
+      <div id="logo">TERMINAL v1</div>
+      <div id="status-text">CONNECTING</div>
+    </div>
+    <div id="clock">--:--:--</div>
+  </div>
+
+  <div id="pairs-grid">
+    <div class="pair-card selected" data-pair="EUR/USD">
+      <div class="pair-name">EUR / USD</div>
+      <div class="pair-price" id="price-EURUSD">-.-----</div>
+      <div class="pair-change" id="change-EURUSD">— —</div>
+      <div class="tick-flash" id="flash-EURUSD"></div>
+    </div>
+    <div class="pair-card" data-pair="USD/JPY">
+      <div class="pair-name">USD / JPY</div>
+      <div class="pair-price" id="price-USDJPY">---.---</div>
+      <div class="pair-change" id="change-USDJPY">— —</div>
+      <div class="tick-flash" id="flash-USDJPY"></div>
+    </div>
+    <div class="pair-card" data-pair="XAU/USD">
+      <div class="pair-name">XAU / USD</div>
+      <div class="pair-price" id="price-XAUUSD">-----.--</div>
+      <div class="pair-change" id="change-XAUUSD">— —</div>
+      <div class="tick-flash" id="flash-XAUUSD"></div>
+    </div>
+    <div class="pair-card" data-pair="XAG/USD">
+      <div class="pair-name">XAG / USD</div>
+      <div class="pair-price" id="price-XAGUSD">--.---</div>
+      <div class="pair-change" id="change-XAGUSD">— —</div>
+      <div class="tick-flash" id="flash-XAGUSD"></div>
+    </div>
+    <div class="pair-card" data-pair="BTC/USD">
+      <div class="pair-name">BTC / USD</div>
+      <div class="pair-price" id="price-BTCUSD">------.--</div>
+      <div class="pair-change" id="change-BTCUSD">— —</div>
+      <div class="tick-flash" id="flash-BTCUSD"></div>
+    </div>
+    <div class="pair-card" data-pair="ETH/USD">
+      <div class="pair-name">ETH / USD</div>
+      <div class="pair-price" id="price-ETHUSD">----.--</div>
+      <div class="pair-change" id="change-ETHUSD">— —</div>
+      <div class="tick-flash" id="flash-ETHUSD"></div>
+    </div>
+  </div>
+
+  <div id="chart-panel">
+    <div id="chart-header">
+      <div id="chart-title">EUR / USD — TICK CHART</div>
+      <div id="chart-stats">
+        <div class="cstat">HIGH <span id="stat-high">—</span></div>
+        <div class="cstat">LOW <span id="stat-low">—</span></div>
+        <div class="cstat">TICKS <span id="stat-ticks">0</span></div>
+      </div>
+    </div>
+    <div id="chart-canvas-wrap">
+      <canvas id="myChart" role="img" aria-label="Live tick chart for selected trading pair"></canvas>
+    </div>
+  </div>
+
+  <div id="tick-log">
+    <div class="log-line" style="color:#222;">— awaiting market data —</div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const pairsConfig = {
+  "EUR/USD": "frxEURUSD",
+  "USD/JPY": "frxUSDJPY",
+  "XAU/USD": "frxXAUUSD",
+  "XAG/USD": "frxXAGUSD",
+  "BTC/USD": "cryBTCUSD",
+  "ETH/USD": "cryETHUSD"
+};
+
+const keyMap = {
+  "frxEURUSD":"EURUSD","frxUSDJPY":"USDJPY","frxXAUUSD":"XAUUSD",
+  "frxXAGUSD":"XAGUSD","cryBTCUSD":"BTCUSD","cryETHUSD":"ETHUSD"
+};
+
+const displayMap = {
+  "EUR/USD":"EURUSD","USD/JPY":"USDJPY","XAU/USD":"XAUUSD",
+  "XAG/USD":"XAGUSD","BTC/USD":"BTCUSD","ETH/USD":"ETHUSD"
+};
+
+const MAX_TICKS = 80;
+const state = {};
+Object.keys(pairsConfig).forEach(p => {
+  state[displayMap[p]] = { price: null, open: null, ticks: [], labels: [] };
+});
+
+let selectedPair = "EUR/USD";
+let selectedKey = "EURUSD";
+let chart = null;
+
+function clockTick() {
+  const now = new Date();
+  document.getElementById('clock').textContent =
+    now.toUTCString().slice(17,25) + ' UTC';
+}
+setInterval(clockTick, 1000);
+clockTick();
+
+const ctx = document.getElementById('myChart').getContext('2d');
+chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'price',
+      data: [],
+      borderColor: '#00ff88',
+      borderWidth: 1.5,
+      pointRadius: 0,
+      tension: 0.1,
+      fill: {
+        target: 'origin',
+        above: 'rgba(0,255,136,0.04)',
+        below: 'rgba(255,68,68,0.04)'
+      }
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    animation: false,
+    plugins: { legend: { display: false }, tooltip: {
+      callbacks: {
+        label: ctx => ctx.parsed.y.toFixed(5)
+      },
+      backgroundColor: '#0f110f',
+      borderColor: '#1a2a1a',
+      borderWidth: 1,
+      titleColor: '#555',
+      bodyColor: '#00ff88',
+      bodyFont: { family: 'monospace', size: 11 }
+    }},
+    scales: {
+      x: {
+        display: true,
+        ticks: { color: '#333', font: { family: 'monospace', size: 9 }, maxTicksLimit: 6, maxRotation: 0 },
+        grid: { color: '#111' }
+      },
+      y: {
+        display: true,
+        position: 'right',
+        ticks: { color: '#444', font: { family: 'monospace', size: 9 }, maxTicksLimit: 5,
+          callback: v => v.toFixed(5) },
+        grid: { color: '#111' }
+      }
+    }
+  }
+});
+
+function updateChart() {
+  const s = state[selectedKey];
+  const label = Object.keys(displayMap).find(k => displayMap[k] === selectedKey) || selectedKey;
+  document.getElementById('chart-title').textContent = label + ' — TICK CHART';
+  chart.data.labels = s.labels;
+  chart.data.datasets[0].data = s.ticks;
+  if (s.ticks.length > 0) {
+    const hi = Math.max(...s.ticks);
+    const lo = Math.min(...s.ticks);
+    document.getElementById('stat-high').textContent = hi.toFixed(5);
+    document.getElementById('stat-low').textContent = lo.toFixed(5);
+    document.getElementById('stat-ticks').textContent = s.ticks.length;
+    const yPad = (hi - lo) * 0.3 || 0.0005;
+    chart.options.scales.y.min = lo - yPad;
+    chart.options.scales.y.max = hi + yPad;
+  }
+  chart.update('none');
+}
+
+function flashCard(key, dir) {
+  const el = document.getElementById('flash-' + key);
+  if (!el) return;
+  el.className = 'tick-flash ' + (dir === 'up' ? 'up-flash' : 'down-flash');
+  el.style.opacity = '1';
+  setTimeout(() => { el.style.opacity = '0'; }, 180);
+}
+
+function addLog(key, price, dir, time) {
+  const log = document.getElementById('tick-log');
+  const d = document.createElement('div');
+  d.className = 'log-line ' + dir;
+  const arrow = dir === 'up' ? '▲' : '▼';
+  d.textContent = time + '  ' + key + '  ' + arrow + '  ' + price.toFixed(5);
+  log.insertBefore(d, log.firstChild);
+  while (log.children.length > 30) log.removeChild(log.lastChild);
+}
+
+document.querySelectorAll('.pair-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.pair-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedPair = card.dataset.pair;
+    selectedKey = displayMap[selectedPair];
+    updateChart();
+  });
+});
+
+function connect() {
+  const ws = new WebSocket('wss://ws.derivws.com/websockets/v3?app_id=132899');
+
+  ws.onopen = () => {
+    document.getElementById('status-dot').classList.add('live');
+    document.getElementById('status-text').textContent = 'LIVE';
+    Object.entries(pairsConfig).forEach(([, sym]) => {
+      ws.send(JSON.stringify({ ticks: sym, subscribe: 1 }));
+    });
+  };
+
+  ws.onmessage = (evt) => {
+    try {
+      const msg = JSON.parse(evt.data);
+      if (msg.msg_type === 'tick' && msg.tick) {
+        const sym = msg.tick.symbol;
+        const key = keyMap[sym];
+        if (!key) return;
+        const price = msg.tick.quote;
+        const time = new Date(msg.tick.epoch * 1000);
+        const timeStr = time.toUTCString().slice(17,25);
+        const s = state[key];
+        const prev = s.price;
+        const dir = prev === null ? 'up' : price >= prev ? 'up' : 'down';
+        s.price = price;
+        if (s.open === null) s.open = price;
+        s.ticks.push(price);
+        s.labels.push(timeStr);
+        if (s.ticks.length > MAX_TICKS) { s.ticks.shift(); s.labels.shift(); }
+        const priceEl = document.getElementById('price-' + key);
+        const changeEl = document.getElementById('change-' + key);
+        const card = priceEl ? priceEl.closest('.pair-card') : null;
+        if (priceEl) priceEl.textContent = price.toFixed(5);
+        if (card) {
+          card.classList.remove('up','down');
+          card.classList.add(dir);
+        }
+        if (changeEl && s.open !== null) {
+          const diff = price - s.open;
+          const pct = ((diff / s.open) * 100).toFixed(3);
+          const sign = diff >= 0 ? '+' : '';
+          changeEl.textContent = sign + diff.toFixed(5) + '  (' + sign + pct + '%)';
+          changeEl.className = 'pair-change ' + (diff >= 0 ? 'up' : 'down');
+        }
+        flashCard(key, dir);
+        if (key === selectedKey) {
+          updateChart();
+          addLog(key, price, dir, timeStr);
+        }
+      }
+    } catch(e) {}
+  };
+
+  ws.onerror = () => {
+    document.getElementById('status-text').textContent = 'ERROR';
+    document.getElementById('status-dot').classList.remove('live');
+  };
+
+  ws.onclose = () => {
+    document.getElementById('status-dot').classList.remove('live');
+    document.getElementById('status-text').textContent = 'RECONNECTING';
+    setTimeout(connect, 3000);
+  };
+}
+
+connect();
+</script>
