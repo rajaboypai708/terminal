@@ -3,11 +3,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: var(--font-mono, monospace); }
 #terminal {
-  background: #0a0a0f;
+  background: #f4f5f7;
   min-height: 600px;
   padding: 16px;
   border-radius: var(--border-radius-lg);
-  color: #e0e0e0;
+  color: #333333;
 }
 #header {
   display: flex;
@@ -15,18 +15,18 @@ body { font-family: var(--font-mono, monospace); }
   justify-content: space-between;
   margin-bottom: 16px;
   padding-bottom: 12px;
-  border-bottom: 0.5px solid #1e2a1e;
+  border-bottom: 0.5px solid #dcdcdc;
 }
 #header-left { display: flex; align-items: center; gap: 10px; }
-#logo { font-size: 13px; font-weight: 500; color: #00ff88; letter-spacing: 2px; }
+#logo { font-size: 13px; font-weight: 500; color: #0077ff; letter-spacing: 2px; }
 #status-dot {
   width: 7px; height: 7px; border-radius: 50%;
-  background: #ff4444;
-  box-shadow: 0 0 6px #ff4444;
+  background: #dd3333;
+  box-shadow: 0 0 6px #dd3333;
 }
-#status-dot.live { background: #00ff88; box-shadow: 0 0 6px #00ff88; }
-#status-text { font-size: 11px; color: #555; letter-spacing: 1px; }
-#clock { font-size: 11px; color: #444; letter-spacing: 1px; }
+#status-dot.live { background: #0077ff; box-shadow: 0 0 6px #0077ff; }
+#status-text { font-size: 11px; color: #666; letter-spacing: 1px; }
+#clock { font-size: 11px; color: #666; letter-spacing: 1px; }
 #pairs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -34,8 +34,8 @@ body { font-family: var(--font-mono, monospace); }
   margin-bottom: 16px;
 }
 .pair-card {
-  background: #0f110f;
-  border: 0.5px solid #1a2a1a;
+  background: #ffffff;
+  border: 0.5px solid #dcdcdc;
   border-radius: 8px;
   padding: 10px 12px;
   cursor: pointer;
@@ -43,31 +43,31 @@ body { font-family: var(--font-mono, monospace); }
   position: relative;
   overflow: hidden;
 }
-.pair-card:hover { border-color: #2a4a2a; }
-.pair-card.selected { border-color: #00ff88; }
-.pair-card.up .pair-price { color: #00ff88; }
-.pair-card.down .pair-price { color: #ff4444; }
-.pair-name { font-size: 10px; color: #555; letter-spacing: 1.5px; margin-bottom: 4px; }
-.pair-price { font-size: 18px; font-weight: 500; color: #888; font-variant-numeric: tabular-nums; transition: color 0.2s; }
+.pair-card:hover { border-color: #a0a0a0; }
+.pair-card.selected { border-color: #0077ff; }
+.pair-card.up .pair-price { color: #00aa55; }
+.pair-card.down .pair-price { color: #dd3333; }
+.pair-name { font-size: 10px; color: #777; letter-spacing: 1.5px; margin-bottom: 4px; }
+.pair-price { font-size: 18px; font-weight: 500; color: #333; font-variant-numeric: tabular-nums; transition: color 0.2s; }
 .pair-change {
   font-size: 10px;
   margin-top: 3px;
-  color: #444;
+  color: #666;
   font-variant-numeric: tabular-nums;
 }
 .pair-change.up { color: #00aa55; }
-.pair-change.down { color: #aa2222; }
+.pair-change.down { color: #dd3333; }
 .tick-flash {
   position: absolute; inset: 0;
   opacity: 0;
   pointer-events: none;
   border-radius: 8px;
 }
-.tick-flash.up-flash { background: rgba(0,255,136,0.06); }
-.tick-flash.down-flash { background: rgba(255,68,68,0.06); }
+.tick-flash.up-flash { background: rgba(0,170,85,0.1); }
+.tick-flash.down-flash { background: rgba(221,51,51,0.1); }
 #chart-panel {
-  background: #0f110f;
-  border: 0.5px solid #1a2a1a;
+  background: #ffffff;
+  border: 0.5px solid #dcdcdc;
   border-radius: 8px;
   padding: 12px;
   margin-bottom: 10px;
@@ -78,15 +78,15 @@ body { font-family: var(--font-mono, monospace); }
   justify-content: space-between;
   margin-bottom: 8px;
 }
-#chart-title { font-size: 11px; color: #00ff88; letter-spacing: 1.5px; }
+#chart-title { font-size: 11px; color: #0077ff; letter-spacing: 1.5px; }
 #chart-stats { display: flex; gap: 16px; }
-.cstat { font-size: 10px; color: #444; }
-.cstat span { color: #888; }
+.cstat { font-size: 10px; color: #666; }
+.cstat span { color: #333; }
 #chart-canvas-wrap { position: relative; width: 100%; height: 180px; }
 #myChart { width: 100% !important; }
 #tick-log {
-  background: #0a0a0f;
-  border: 0.5px solid #1a1a1a;
+  background: #ffffff;
+  border: 0.5px solid #dcdcdc;
   border-radius: 8px;
   padding: 8px 12px;
   height: 80px;
@@ -95,12 +95,12 @@ body { font-family: var(--font-mono, monospace); }
   color: #333;
   letter-spacing: 0.5px;
 }
-#tick-log .log-line { padding: 1px 0; border-bottom: 0.5px solid #111; }
-#tick-log .log-line.up { color: #1a5a35; }
-#tick-log .log-line.down { color: #5a1a1a; }
+#tick-log .log-line { padding: 1px 0; border-bottom: 0.5px solid #f0f0f0; }
+#tick-log .log-line.up { color: #007a33; }
+#tick-log .log-line.down { color: #a31a1a; }
 #tick-log::-webkit-scrollbar { width: 3px; }
-#tick-log::-webkit-scrollbar-track { background: #0a0a0f; }
-#tick-log::-webkit-scrollbar-thumb { background: #1a2a1a; }
+#tick-log::-webkit-scrollbar-track { background: #f4f5f7; }
+#tick-log::-webkit-scrollbar-thumb { background: #dcdcdc; }
 </style>
 
 <div id="terminal">
@@ -167,8 +167,8 @@ body { font-family: var(--font-mono, monospace); }
   </div>
 
   <div id="tick-log">
-    <div class="log-line" style="color:#222;">— awaiting market data —</div>
-  </div>
+      <div class="log-line" style="color:#777;">— awaiting market data —</div>
+    </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -218,14 +218,14 @@ chart = new Chart(ctx, {
     datasets: [{
       label: 'price',
       data: [],
-      borderColor: '#00ff88',
+      borderColor: '#0077ff',
       borderWidth: 1.5,
       pointRadius: 0,
       tension: 0.1,
       fill: {
         target: 'origin',
-        above: 'rgba(0,255,136,0.04)',
-        below: 'rgba(255,68,68,0.04)'
+        above: 'rgba(0,119,255,0.04)',
+        below: 'rgba(221,51,51,0.04)'
       }
     }]
   },
@@ -237,25 +237,25 @@ chart = new Chart(ctx, {
       callbacks: {
         label: ctx => ctx.parsed.y.toFixed(5)
       },
-      backgroundColor: '#0f110f',
-      borderColor: '#1a2a1a',
+      backgroundColor: '#ffffff',
+      borderColor: '#dcdcdc',
       borderWidth: 1,
-      titleColor: '#555',
-      bodyColor: '#00ff88',
+      titleColor: '#666',
+      bodyColor: '#0077ff',
       bodyFont: { family: 'monospace', size: 11 }
     }},
     scales: {
       x: {
         display: true,
-        ticks: { color: '#333', font: { family: 'monospace', size: 9 }, maxTicksLimit: 6, maxRotation: 0 },
-        grid: { color: '#111' }
+        ticks: { color: '#666', font: { family: 'monospace', size: 9 }, maxTicksLimit: 6, maxRotation: 0 },
+        grid: { color: '#e0e0e0' }
       },
       y: {
         display: true,
         position: 'right',
-        ticks: { color: '#444', font: { family: 'monospace', size: 9 }, maxTicksLimit: 5,
+        ticks: { color: '#666', font: { family: 'monospace', size: 9 }, maxTicksLimit: 5,
           callback: v => v.toFixed(5) },
-        grid: { color: '#111' }
+        grid: { color: '#e0e0e0' }
       }
     }
   }
