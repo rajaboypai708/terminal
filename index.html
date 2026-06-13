@@ -39,38 +39,44 @@ body { font-family: var(--font-mono, monospace); }
   font-family: inherit;
   font-size: 11px;
   color: #333;
-  margin-left: 16px;
   cursor: pointer;
   outline: none;
 }
 #pair-select:focus { border-color: #0077ff; }
+#middle-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 10px;
+}
 #pairs-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(2, 1fr);
-  grid-auto-flow: column;
-  gap: 10px;
-  margin-bottom: 16px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 4px;
 }
 .pair-card {
   background: #ffffff;
   border: 0.5px solid #dcdcdc;
-  border-radius: 8px;
-  padding: 10px 12px;
+  border-radius: 4px;
+  padding: 2px;
   cursor: pointer;
   transition: border-color 0.15s;
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
 }
 .pair-card:hover { border-color: #a0a0a0; }
 .pair-card.selected { border-color: #0077ff; }
 .pair-card.up .pair-price { color: #00aa55; }
 .pair-card.down .pair-price { color: #dd3333; }
-.pair-name { font-size: 10px; color: #777; letter-spacing: 1.5px; margin-bottom: 4px; }
-.pair-price { font-size: 18px; font-weight: 500; color: #333; font-variant-numeric: tabular-nums; transition: color 0.2s; }
+.pair-name { font-size: 7px; color: #777; letter-spacing: 0.5px; margin-bottom: 1px; }
+.pair-price { font-size: 10px; font-weight: 600; color: #333; font-variant-numeric: tabular-nums; transition: color 0.2s; }
 .pair-change {
-  font-size: 10px;
-  margin-top: 3px;
+  font-size: 7px;
+  margin-top: 1px;
   color: #666;
   font-variant-numeric: tabular-nums;
 }
@@ -80,7 +86,7 @@ body { font-family: var(--font-mono, monospace); }
   position: absolute; inset: 0;
   opacity: 0;
   pointer-events: none;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 .tick-flash.up-flash { background: rgba(0,170,85,0.1); }
 .tick-flash.down-flash { background: rgba(221,51,51,0.1); }
@@ -88,10 +94,10 @@ body { font-family: var(--font-mono, monospace); }
   background: #ffffff;
   border: 0.5px solid #dcdcdc;
   border-radius: 8px;
-  padding: 16px;
+  padding: 10px 16px;
   margin-bottom: 10px;
   flex: 1;
-  min-height: 0;
+  min-height: 160px;
   display: flex;
   flex-direction: column;
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
@@ -100,26 +106,52 @@ body { font-family: var(--font-mono, monospace); }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
-#chart-title { font-size: 12px; font-weight: 600; color: #0077ff; letter-spacing: 1.5px; }
+#chart-title { font-size: 11px; font-weight: 600; color: #0077ff; letter-spacing: 1.5px; }
 #chart-stats { display: flex; gap: 16px; }
-.cstat { font-size: 11px; color: #666; font-weight: 500; }
+.cstat { font-size: 10px; color: #666; font-weight: 500; }
 .cstat span { color: #333; font-weight: 600; }
 #chart-canvas-wrap { position: relative; width: 100%; flex: 1; min-height: 0; }
-#myChart { width: 100% !important; }
+#myChart { width: 100% !important; height: 100% !important; display: block; }
 #tick-log {
   background: #ffffff;
   border: 0.5px solid #dcdcdc;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 8px 12px;
-  height: 80px;
+  height: 120px;
+  overflow-x: hidden;
   overflow-y: auto;
-  font-size: 10px;
+  font-size: 9px;
   color: #333;
   letter-spacing: 0.5px;
+  column-count: 3;
+  column-gap: 16px;
+  column-fill: auto;
 }
-#tick-log .log-line { padding: 1px 0; border-bottom: 0.5px solid #f0f0f0; }
+#control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 0.5px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-top: auto;
+}
+.ctrl-btn {
+  background: #f4f5f7;
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  color: #333;
+  font-family: inherit;
+}
+.ctrl-btn:hover { background: #e0e0e0; }
+#tick-log .log-line { padding: 1px 0; border-bottom: 0.5px solid #f0f0f0; break-inside: avoid; }
 #tick-log .log-line.up { color: #007a33; }
 #tick-log .log-line.down { color: #a31a1a; }
 #tick-log::-webkit-scrollbar { width: 3px; }
@@ -133,6 +165,72 @@ body { font-family: var(--font-mono, monospace); }
       <div id="status-dot"></div>
       <div id="logo">TERMINAL v1</div>
       <div id="status-text">CONNECTING</div>
+          </div>
+          <div id="clock">--:--:--</div>
+        </div>
+      
+        <div id="chart-panel">
+          <div id="chart-header">
+            <div id="chart-title">EUR / USD — TICK CHART</div>
+            <div id="chart-stats">
+              <div class="cstat">HIGH <span id="stat-high">—</span></div>
+              <div class="cstat">LOW <span id="stat-low">—</span></div>
+              <div class="cstat">TICKS <span id="stat-ticks">0</span></div>
+            </div>
+          </div>
+          <div id="chart-canvas-wrap">
+            <canvas id="myChart" role="img" aria-label="Live tick chart for selected trading pair"></canvas>
+          </div>
+        </div>
+      
+        <div id="middle-section">
+            <div id="tick-log">
+              <div class="log-line" style="color:#777;">— awaiting market data —</div>
+            </div>
+        
+            <div id="pairs-grid">
+              <div class="pair-card selected" data-pair="EUR/USD">
+                <div class="pair-name">EUR / USD</div>
+                <div class="pair-price" id="price-EURUSD">-.-----</div>
+                <div class="pair-change" id="change-EURUSD">— —</div>
+                <div class="tick-flash" id="flash-EURUSD"></div>
+              </div>
+              <div class="pair-card" data-pair="USD/JPY">
+                <div class="pair-name">USD / JPY</div>
+                <div class="pair-price" id="price-USDJPY">---.---</div>
+                <div class="pair-change" id="change-USDJPY">— —</div>
+                <div class="tick-flash" id="flash-USDJPY"></div>
+              </div>
+              <div class="pair-card" data-pair="XAU/USD">
+                <div class="pair-name">XAU / USD</div>
+                <div class="pair-price" id="price-XAUUSD">-----.--</div>
+                <div class="pair-change" id="change-XAUUSD">— —</div>
+                <div class="tick-flash" id="flash-XAUUSD"></div>
+              </div>
+              <div class="pair-card" data-pair="XAG/USD">
+                <div class="pair-name">XAG / USD</div>
+                <div class="pair-price" id="price-XAGUSD">--.---</div>
+                <div class="pair-change" id="change-XAGUSD">— —</div>
+                <div class="tick-flash" id="flash-XAGUSD"></div>
+              </div>
+              <div class="pair-card" data-pair="BTC/USD">
+                <div class="pair-name">BTC / USD</div>
+                <div class="pair-price" id="price-BTCUSD">------.--</div>
+                <div class="pair-change" id="change-BTCUSD">— —</div>
+                <div class="tick-flash" id="flash-BTCUSD"></div>
+              </div>
+              <div class="pair-card" data-pair="ETH/USD">
+                <div class="pair-name">ETH / USD</div>
+                <div class="pair-price" id="price-ETHUSD">----.--</div>
+                <div class="pair-change" id="change-ETHUSD">— —</div>
+                <div class="tick-flash" id="flash-ETHUSD"></div>
+              </div>
+            </div>
+          </div>
+      
+        <div id="control-bar">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size: 11px; color: #666; font-weight: 600;">ACTIVE PAIR:</span>
             <select id="pair-select">
               <option value="EUR/USD">EUR / USD</option>
               <option value="USD/JPY">USD / JPY</option>
@@ -142,65 +240,8 @@ body { font-family: var(--font-mono, monospace); }
               <option value="ETH/USD">ETH / USD</option>
             </select>
           </div>
-          <div id="clock">--:--:--</div>
-  </div>
-
-  <div id="pairs-grid">
-    <div class="pair-card selected" data-pair="EUR/USD">
-      <div class="pair-name">EUR / USD</div>
-      <div class="pair-price" id="price-EURUSD">-.-----</div>
-      <div class="pair-change" id="change-EURUSD">— —</div>
-      <div class="tick-flash" id="flash-EURUSD"></div>
-    </div>
-    <div class="pair-card" data-pair="USD/JPY">
-      <div class="pair-name">USD / JPY</div>
-      <div class="pair-price" id="price-USDJPY">---.---</div>
-      <div class="pair-change" id="change-USDJPY">— —</div>
-      <div class="tick-flash" id="flash-USDJPY"></div>
-    </div>
-    <div class="pair-card" data-pair="XAU/USD">
-      <div class="pair-name">XAU / USD</div>
-      <div class="pair-price" id="price-XAUUSD">-----.--</div>
-      <div class="pair-change" id="change-XAUUSD">— —</div>
-      <div class="tick-flash" id="flash-XAUUSD"></div>
-    </div>
-    <div class="pair-card" data-pair="XAG/USD">
-      <div class="pair-name">XAG / USD</div>
-      <div class="pair-price" id="price-XAGUSD">--.---</div>
-      <div class="pair-change" id="change-XAGUSD">— —</div>
-      <div class="tick-flash" id="flash-XAGUSD"></div>
-    </div>
-    <div class="pair-card" data-pair="BTC/USD">
-      <div class="pair-name">BTC / USD</div>
-      <div class="pair-price" id="price-BTCUSD">------.--</div>
-      <div class="pair-change" id="change-BTCUSD">— —</div>
-      <div class="tick-flash" id="flash-BTCUSD"></div>
-    </div>
-    <div class="pair-card" data-pair="ETH/USD">
-      <div class="pair-name">ETH / USD</div>
-      <div class="pair-price" id="price-ETHUSD">----.--</div>
-      <div class="pair-change" id="change-ETHUSD">— —</div>
-      <div class="tick-flash" id="flash-ETHUSD"></div>
-    </div>
-  </div>
-
-  <div id="chart-panel">
-    <div id="chart-header">
-      <div id="chart-title">EUR / USD — TICK CHART</div>
-      <div id="chart-stats">
-        <div class="cstat">HIGH <span id="stat-high">—</span></div>
-        <div class="cstat">LOW <span id="stat-low">—</span></div>
-        <div class="cstat">TICKS <span id="stat-ticks">0</span></div>
-      </div>
-    </div>
-    <div id="chart-canvas-wrap">
-      <canvas id="myChart" role="img" aria-label="Live tick chart for selected trading pair"></canvas>
-    </div>
-  </div>
-
-  <div id="tick-log">
-      <div class="log-line" style="color:#777;">— awaiting market data —</div>
-    </div>
+          <button class="ctrl-btn" onclick="location.reload()">RESTART CONNECTION</button>
+        </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -341,7 +382,7 @@ function addLog(key, price, dir, time) {
   var arrow = dir === 'up' ? '▲' : '▼';
   d.textContent = time + '  ' + key + '  ' + arrow + '  ' + price.toFixed(5);
   log.insertBefore(d, log.firstChild);
-  while (log.children.length > 30) log.removeChild(log.lastChild);
+  while (log.children.length > 150) log.removeChild(log.lastChild);
 }
 
 const pairSelect = document.getElementById('pair-select');
